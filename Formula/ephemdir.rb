@@ -3,8 +3,8 @@ class Ephemdir < Formula
 
   desc "Temporary directories that clean themselves up after a lifetime or on restart"
   homepage "https://github.com/vindfjur/ephemdir"
-  url "https://files.pythonhosted.org/packages/fc/62/ac45b5ea40dcfd62734929e7f03753179f44d248bb1ac79b9ebd42bdaeae/ephemdir-0.2.0.tar.gz"
-  sha256 "2f9246871bc72abadc5882339de4794e8ac67379fda498939f32bfd7e3f49342"
+  url "https://files.pythonhosted.org/packages/f1/60/f64ae2e3404113e61721894e6ea0eb4385d282287cf054e371853b6a2ec1/ephemdir-0.3.0.tar.gz"
+  sha256 "bf15f469b7c904e2afc3ca5190c813e48a60840d2660721cf1dd8af2d408ee96"
   license "MIT"
 
   depends_on "python@3.12"
@@ -19,8 +19,12 @@ class Ephemdir < Formula
   end
 
   test do
-    assert_match "0.2.0", shell_output("#{bin}/ephemdir --version")
+    assert_match "0.3.0", shell_output("#{bin}/ephemdir --version")
     created = shell_output("#{bin}/ephemdir new --lifetime 1h").strip
     assert_predicate Pathname.new(created), :directory?
+    # 0.3.0: resolve the directory by name, then stop tracking it.
+    name = Pathname.new(created).basename.to_s
+    assert_equal created, shell_output("#{bin}/ephemdir path #{name}").strip
+    assert_match created, shell_output("#{bin}/ephemdir keep #{name}")
   end
 end
